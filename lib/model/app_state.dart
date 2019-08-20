@@ -46,7 +46,7 @@ class AppStateContainer extends InheritedWidget {
     }
   }
 
-  void addEvent(MyEvent event, {MyEvent oldEvent}) async {
+  Future<void> addEvent(MyEvent event, {MyEvent oldEvent}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (event.id != null) {
@@ -61,9 +61,9 @@ class AppStateContainer extends InheritedWidget {
     int counter = event.days.length;
     if (prefs.containsKey('eventCounter')) {
       counter += prefs.getInt('eventCounter');
-      prefs.setInt('eventCounter', counter);
     }
     event.id = counter;
+    await prefs.setInt('eventCounter', counter);
 
     _events.add(event);
     _events.sort((evtA, evtB) => evtA.time.isBefore(evtB.time) ? -1 : 1);
@@ -78,15 +78,38 @@ class AppStateContainer extends InheritedWidget {
     await setupNotification(event);
   }
 
+  Future<void> saveFontSize(double size) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('fontSize', size);
+  }
+
+  Future<double> getFontSize() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    double fontSize = 12;
+    if (prefs.containsKey('fontSize')) {
+      fontSize = prefs.getDouble('fontSize');
+    }
+    return fontSize;
+  }
+
   void deleteEvent(MyEvent event) async {
+    print(event);
     if (event.id == null) return;
 
-    _events.removeWhere((evn) => evn.id == event.id);
+    print(_events);
+    _events.removeWhere((evn) {
+      print(evn.id);
+      print(event.id);
+      return evn.id == event.id;
+    });
+    print(_events);
 
     // save to pref
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final jsonList = _events.map((event) => event.toJson()).toList();
     final data = jsonEncode(jsonList);
+
+    print(data);
     prefs.setString('schedule', data);
 
     // remove reminder

@@ -9,8 +9,10 @@ import 'package:recase/recase.dart';
 class SchedulePage extends StatefulWidget {
   final String title;
   final MyEvent event;
+  final double fontSize;
 
-  const SchedulePage({Key key, this.title, this.event}) : super(key: key);
+  const SchedulePage({Key key, this.title, this.event, this.fontSize})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SchedulePageState();
@@ -45,6 +47,7 @@ class SchedulePageState extends State<SchedulePage> {
               maxLines: 1,
               controller: _controller..text = _desc,
               onChanged: (str) => _desc = str,
+              style: TextStyle(fontSize: widget.fontSize),
               decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -85,10 +88,13 @@ class SchedulePageState extends State<SchedulePage> {
               color: Colors.cyan,
               child: Text(
                 'Simpan',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: widget.fontSize,
+                ),
               ),
-              onPressed: () {
-                AppStateContainer.of(context).addEvent(
+              onPressed: () async {
+                await AppStateContainer.of(context).addEvent(
                   MyEvent(
                     widget.event.reminder,
                     _pickedDays,
@@ -109,7 +115,10 @@ class SchedulePageState extends State<SchedulePage> {
                 color: Colors.amberAccent,
                 child: Text(
                   'Hapus',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: widget.fontSize,
+                  ),
                 ),
                 onPressed: () {
                   AppStateContainer.of(context).deleteEvent(widget.event);
@@ -136,12 +145,18 @@ class SchedulePageState extends State<SchedulePage> {
             children: <Widget>[
               Text(
                 caption,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: widget.fontSize,
+                ),
               ),
               Expanded(child: Container()),
               Text(
                 selection,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: widget.fontSize,
+                ),
               ),
             ],
           )

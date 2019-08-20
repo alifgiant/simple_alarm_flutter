@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'package:alarm_ta/model/app_state.dart';
 import 'package:alarm_ta/model/reminder.dart';
 import 'package:alarm_ta/screen/schedule_add.dart';
+import 'package:alarm_ta/screen/setting_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
@@ -19,6 +20,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomeState extends State<MyHomePage> {
   DateTime _selectedDate = DateTime.now();
   List<MyEvent> appStateEvents = [];
+  double fontSize = 12;
 
   bool hasLoadFromDb = false;
 
@@ -47,6 +49,7 @@ class MyHomeState extends State<MyHomePage> {
       hasLoadFromDb = true;
     }
 
+    fontSize = await AppStateContainer.of(context).getFontSize();
     if (!mounted) return;
     setState(() {
       appStateEvents = AppStateContainer.of(context).readEvents();
@@ -57,7 +60,17 @@ class MyHomeState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pentas'),
+        title: Text('Pentas', style: TextStyle(fontSize: fontSize + 4)),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Setting',
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (builder) => SettingScreen()));
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -65,7 +78,7 @@ class MyHomeState extends State<MyHomePage> {
           showModalBottomSheet(
               context: context,
               builder: (BuildContext ctx) {
-                return HomeMenus();
+                return HomeMenus(fontSize: fontSize);
               });
         },
       ),
@@ -75,6 +88,8 @@ class MyHomeState extends State<MyHomePage> {
             margin: EdgeInsets.symmetric(horizontal: 26.0),
             height: 330,
             child: CalendarCarousel<Event>(
+              headerTextStyle: TextStyle(fontSize: fontSize + 5, color: Colors.blue),
+              weekdayTextStyle: TextStyle(fontSize: fontSize, color: Colors.red),
               onDayPressed: (DateTime date, List<Event> l) {
                 if (!mounted) return;
                 setState(() => _selectedDate = date);
@@ -90,7 +105,8 @@ class MyHomeState extends State<MyHomePage> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text('Daftar Jadwal', style: TextStyle(fontSize: 16)),
+            child:
+                Text('Daftar Jadwal', style: TextStyle(fontSize: fontSize + 4)),
           ),
           getScheduleList()
         ],
@@ -116,7 +132,8 @@ class MyHomeState extends State<MyHomePage> {
           alignment: Alignment.center,
           child: Text(
             'Tidak ada jadwal',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style:
+                TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize + 2),
           ),
         ),
       );
@@ -137,16 +154,19 @@ class MyHomeState extends State<MyHomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(event.reminder.key),
+                  Text(event.reminder.key,
+                      style: TextStyle(fontSize: fontSize + 2)),
                   if (event.desc.isNotEmpty)
                     Text(
                       event.desc,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w300, fontSize: fontSize),
                     )
                 ],
               ),
               Expanded(child: Container()),
-              Text("${DateFormat.Hm().format(event.time)}"),
+              Text("${DateFormat.Hm().format(event.time)}",
+                  style: TextStyle(fontSize: fontSize + 2)),
             ],
           ),
         ),
@@ -161,6 +181,7 @@ class MyHomeState extends State<MyHomePage> {
         builder: (builder) => SchedulePage(
           title: event.reminder.key.toUpperCase(),
           event: event,
+          fontSize: fontSize,
         ),
       ),
     );
@@ -168,6 +189,10 @@ class MyHomeState extends State<MyHomePage> {
 }
 
 class HomeMenus extends StatelessWidget {
+  final double fontSize;
+
+  const HomeMenus({Key key, this.fontSize}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -184,7 +209,11 @@ class HomeMenus extends StatelessWidget {
           children: <Widget>[
             Icon(reminderKinds[idx].icons),
             Container(height: 8),
-            Text(reminderKinds[idx].key, textAlign: TextAlign.center)
+            Text(
+              reminderKinds[idx].key,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: fontSize - 2),
+            )
           ],
         ),
         onPressed: () => onClick(context, idx),
@@ -206,6 +235,7 @@ class HomeMenus extends StatelessWidget {
         builder: (builder) => SchedulePage(
           title: reminderKinds[index].key.toUpperCase(),
           event: MyEvent(reminderKinds[index], List.from(allDays), null),
+          fontSize: fontSize,
         ),
       ),
     );

@@ -117,9 +117,17 @@ class MyHomeState extends State<MyHomePage> {
   }
 
   Widget getScheduleList() {
-    final dayName = DateFormat.EEEE('id').format(_selectedDate);
-    final filteredEvents =
-        appStateEvents.where((event) => event.days.contains(dayName)).toList();
+    // drop hour:minute:millisec etc
+    _selectedDate = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+
+    final filteredEvents = appStateEvents
+        .where((event) =>
+            event.days[0] == _selectedDate || event.days[1] == _selectedDate)
+        .toList();
 
     if (filteredEvents.length > 0) {
       return Expanded(

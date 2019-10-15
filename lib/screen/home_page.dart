@@ -124,10 +124,14 @@ class MyHomeState extends State<MyHomePage> {
       _selectedDate.day,
     );
 
-    final filteredEvents = appStateEvents
-        .where((event) =>
-            event.days[0] == _selectedDate || event.days[1] == _selectedDate)
-        .toList();
+    // print(event.days);
+    final filteredEvents = appStateEvents.where((event) {
+      print(event.days);
+      return event.days[0] == _selectedDate ||
+          event.days[1] == _selectedDate ||
+          (_selectedDate.isAfter(event.days[0]) &&
+              _selectedDate.isBefore(event.days[1]));
+    }).toList();
 
     if (filteredEvents.length > 0) {
       return Expanded(

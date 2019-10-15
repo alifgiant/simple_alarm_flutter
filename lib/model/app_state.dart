@@ -49,6 +49,18 @@ class AppStateContainer extends InheritedWidget {
   Future<void> addEvent(MyEvent event, {MyEvent oldEvent}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // drop time hour:minute:millisec
+    event.days[0] = DateTime(
+      event.days[0].year,
+      event.days[0].month,
+      event.days[0].day,
+    );
+    event.days[1] = DateTime(
+      event.days[1].year,
+      event.days[1].month,
+      event.days[1].day,
+    );
+
     if (event.id != null) {
       _events.removeWhere((evn) => evn.id == event.id);
       // cancel all event before

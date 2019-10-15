@@ -10,7 +10,7 @@ class Reminder {
 
 class MyEvent {
   final Reminder reminder;
-  final List<String> days;
+  final List<DateTime> days;
   final DateTime time;
   final String desc;
   int id;
@@ -20,7 +20,7 @@ class MyEvent {
   Map<String, dynamic> toJson() {
     return {
       "reminder": reminder.key,
-      "days": days.join(","),
+      "days": days.join(" - "),
       "time": time.toString(),
       "id": id,
       "desc": desc
@@ -30,7 +30,11 @@ class MyEvent {
   factory MyEvent.parseJson(Map<String, dynamic> data) {
     final reminder =
         reminderKinds.where((kind) => kind.key == data['reminder']).first;
-    final days = data['days'].toString().split(',');
+    final days = data['days']
+        .toString()
+        .split(' - ')
+        .map((day) => DateTime.tryParse(day))
+        .toList();
     final time = DateTime.tryParse(data['time']);
     final id = data['id'];
     final desc = data['desc'];

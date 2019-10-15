@@ -88,8 +88,10 @@ class MyHomeState extends State<MyHomePage> {
             margin: EdgeInsets.symmetric(horizontal: 26.0),
             height: 330,
             child: CalendarCarousel<Event>(
-              headerTextStyle: TextStyle(fontSize: fontSize + 5, color: Colors.blue),
-              weekdayTextStyle: TextStyle(fontSize: fontSize, color: Colors.red),
+              headerTextStyle:
+                  TextStyle(fontSize: fontSize + 5, color: Colors.blue),
+              weekdayTextStyle:
+                  TextStyle(fontSize: fontSize, color: Colors.red),
               onDayPressed: (DateTime date, List<Event> l) {
                 if (!mounted) return;
                 setState(() => _selectedDate = date);
@@ -234,7 +236,7 @@ class HomeMenus extends StatelessWidget {
       MaterialPageRoute(
         builder: (builder) => SchedulePage(
           title: reminderKinds[index].key.toUpperCase(),
-          event: MyEvent(reminderKinds[index], List.from(allDays), null),
+          event: MyEvent(reminderKinds[index], null, null),
           fontSize: fontSize,
         ),
       ),

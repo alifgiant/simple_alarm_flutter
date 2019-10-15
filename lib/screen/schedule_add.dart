@@ -1,18 +1,22 @@
 import 'package:alarm_ta/model/app_state.dart';
 import 'package:alarm_ta/model/reminder.dart';
-import 'package:alarm_ta/screen/day_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:recase/recase.dart';
+import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 
 class SchedulePage extends StatefulWidget {
   final String title;
   final MyEvent event;
   final double fontSize;
 
-  const SchedulePage({Key key, this.title, this.event, this.fontSize})
-      : super(key: key);
+  const SchedulePage({
+    Key key,
+    this.title,
+    this.event,
+    this.fontSize,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SchedulePageState();
@@ -21,14 +25,17 @@ class SchedulePage extends StatefulWidget {
 class SchedulePageState extends State<SchedulePage> {
   TextEditingController _controller = TextEditingController();
   DateTime _pickedTime = DateTime.now();
+  List<DateTime> _pickedDate = [
+    DateTime.now(),
+    DateTime.now().add(Duration(days: 7)),
+  ];
   String _desc = '';
-  List<String> _pickedDays = List.from(allDays);
 
   @override
   void initState() {
     super.initState();
     if (widget.event.time != null) _pickedTime = widget.event.time;
-    if (widget.event.days != null) _pickedDays = widget.event.days;
+    if (widget.event.days != null) _pickedDate = widget.event.days;
     if (widget.event.desc != null) _desc = widget.event.desc;
   }
 
@@ -61,16 +68,15 @@ class SchedulePageState extends State<SchedulePage> {
             ),
           ),
           Container(height: 18),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: buildActionButton('Setiap', getDaySelected(), () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => DayPickerPage(
-                            pickedDays: _pickedDays,
-                          )));
-            }),
+          Builder(
+            builder: (ctx) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: buildActionButton(
+                'Tanggal',
+                getDaySelected(),
+                () => showCalendarPicker(ctx),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -97,7 +103,7 @@ class SchedulePageState extends State<SchedulePage> {
                 await AppStateContainer.of(context).addEvent(
                   MyEvent(
                     widget.event.reminder,
-                    _pickedDays,
+                    _pickedDate,
                     _pickedTime,
                     desc: _controller.text,
                     id: widget.event.id,
@@ -165,41 +171,6 @@ class SchedulePageState extends State<SchedulePage> {
     );
   }
 
-  void showDayPicker() async {
-    List<String> picked = List.from(_pickedDays);
-    await showModalBottomSheet(
-      context: context,
-      builder: (BuildContext ctx) {
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: allDays.length,
-          itemBuilder: (ctx, idx) => Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(allDays[idx]),
-              ),
-              Checkbox(
-                value: picked.contains(allDays[idx]),
-                onChanged: (val) {
-                  if (!mounted) return;
-                  setState(() {
-                    if (val && !picked.contains(allDays[idx])) {
-                      picked.add(allDays[idx]);
-                    } else if (picked.contains(allDays[idx])) {
-                      picked.remove(allDays[idx]);
-                    }
-                  });
-                },
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void showTimePicker() {
     DatePicker.showDatePicker(
       context,
@@ -218,8 +189,38 @@ class SchedulePageState extends State<SchedulePage> {
     );
   }
 
+  void showCalendarPicker(BuildContext ctx) async {
+    final pickedDate = await DateRagePicker.showDatePicker(
+      context: ctx,
+      initialFirstDate: _pickedDate[0],
+      initialLastDate: _pickedDate[1],
+      firstDate: new DateTime(2000),
+      lastDate: new DateTime(2040),
+    );
+    if (pickedDate == null) {
+      return;
+    } else if (pickedDate.length == 2) {
+      setState(() {
+        _pickedDate = pickedDate;
+      });
+    } else if (pickedDate.length < 2) {
+      Scaffold.of(ctx).showSnackBar(SnackBar(
+        content: Text(
+          'Jika ingin pilih hanya 1 hari, klik dua kali pada hari tersebut',
+        ),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {},
+        ),
+      ));
+    }
+  }
+
   String getDaySelected() {
-    if (_pickedDays.length == 7) return "Hari";
-    return allDays.where((day) => _pickedDays.contains(day)).join(",");
+    final start = _pickedDate[0];
+    final stop = _pickedDate[1];
+    final startStr = DateFormat.yMMMd().format(start);
+    final stopStr = DateFormat.yMMMd().format(stop);
+    return (startStr == stopStr) ? '$startStr' : '$startStr - $stopStr';
   }
 }

@@ -14,35 +14,30 @@ class AppStateContainer extends InheritedWidget {
   AppStateContainer(this._events, this.child);
 
   Future<void> setupNotification(MyEvent event) async {
-    var time = new Time(event.time.hour, event.time.minute, 0);
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
         'pentas_alarm', 'Pentas Alarm', 'Alarm penjadwalan aktivitas');
     var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
     var platformChannelSpecifics = new NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
 
-    for (var i = 0; i < event.days.length; i++) {
-      final dayId = event.days[i];
+    DateTime start = event.days[0];
+    DateTime last = event.days[1];
+    int i = 0;
+    while (!start.isAfter(last)) {
+      final time = start.add(Duration(
+        hours: event.time.hour,
+        minutes: event.time.minute,
+      ));
+      await flutterLocalNotificationsPlugin.schedule(
+        event.id - i,
+        event.reminder.key,
+        event.desc,
+        time,
+        platformChannelSpecifics,
+      );
 
-      Day day = Day.Monday;
-      if (dayId == 'Senin') {
-        day = Day.Monday;
-      } else if (dayId == 'Selasa') {
-        day = Day.Tuesday;
-      } else if (dayId == 'Rabu') {
-        day = Day.Wednesday;
-      } else if (dayId == 'Kamis') {
-        day = Day.Thursday;
-      } else if (dayId == 'Jumat') {
-        day = Day.Friday;
-      } else if (dayId == 'Sabtu') {
-        day = Day.Saturday;
-      } else if (dayId == 'Minggu') {
-        day = Day.Sunday;
-      }
-
-      await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(event.id - i,
-          event.reminder.key, event.desc, day, time, platformChannelSpecifics);
+      start = start.add(Duration(days: 1));
+      i += 1;
     }
   }
 

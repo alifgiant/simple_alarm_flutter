@@ -199,20 +199,13 @@ class SchedulePageState extends State<SchedulePage> {
     );
     if (pickedDate == null) {
       return;
-    } else if (pickedDate.length == 2) {
+    } else {
+      if (pickedDate.length == 1) {
+        pickedDate.add(pickedDate[0]);
+      }
       setState(() {
         _pickedDate = pickedDate;
       });
-    } else if (pickedDate.length < 2) {
-      Scaffold.of(ctx).showSnackBar(SnackBar(
-        content: Text(
-          'Jika ingin pilih hanya 1 hari, klik dua kali pada hari tersebut',
-        ),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
-        ),
-      ));
     }
   }
 

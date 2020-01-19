@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_medicine"
+        android:icon="@drawable/ic_medicine"
+        android:title="@string/title_medicine" />
+
+    <item
+        android:id="@+id/item_food"
+        android:icon="@drawable/ic_food"
+        android:title="@string/title_food" />
+
+    <item
+        android:id="@+id/item_bill"
+        android:icon="@drawable/ic_bill"
+        android:title="@string/title_bill" />
+    <item
+        android:id="@+id/item_arisan"
+        android:icon="@drawable/ic_arisan"
+        android:title="@string/title_arisan" />
+    <item
+        android:id="@+id/item_other"
+        android:icon="@drawable/ic_other"
+        android:title="@string/title_other" />
+
+</menu>
